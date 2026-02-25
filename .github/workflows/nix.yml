@@ -7,41 +7,50 @@ jobs:
   nix-tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - uses: cachix/install-nix-action@v31
-      with:
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        nix_path: nixpkgs=channel:nixos-unstable
+      - uses: actions/checkout@v6
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          nix_path: nixpkgs=channel:nixos-unstable
 
-    - name: Run Nix Flake Check
-      run: nix flake check
+      - name: Run Nix Flake Check
+        run: nix flake check
 
-    - name: Build library and generate haddock
-      run: |
-        nix build .\#nvfetcher-lib.out.doc
-        cp -r ./result-doc/share/doc/nvfetcher-*/html/ docs
+      - name: Build library and generate haddock
+        run: |
+          nix build .\#nvfetcher-lib.out.doc
+          cp -r ./result-doc/share/doc/nvfetcher-*/html/ docs
 
-    - name: Run spec tests
-      run: |
-        nix develop --command cabal update
-        nix develop --command cabal test
+      - name: Run spec tests
+        run: |
+          nix develop --command cabal update
+          nix develop --command cabal test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Run CLI with nvfetcher_example.toml
-      run : nix shell --command nvfetcher --config nvfetcher_example.toml
+      - name: Generate keyfile.toml
+        run: |
+          cat > keyfile.toml << EOF
+          [keys]
+          github = "${{ secrets.GITHUB_TOKEN }}"
+          EOF
 
-    - name: Eval generated.nix
-      run : nix eval -f _sources/generated.nix
+      - name: Run CLI with nvfetcher_example.toml
+        run: nix shell --command nvfetcher --config nvfetcher_example.toml --keyfile keyfile.toml
 
-    - name: Cleanup
-      run: rm -r _sources
+      - name: Eval generated.nix
+        run: nix eval -f _sources/generated.nix
 
-    - name: Run Main_example.hs
-      run: nix develop .\#ghcWithNvfetcher --command runghc Main_example.hs
+      - name: Cleanup
+        run: rm -r _sources
 
-    - name: Deploy generated haddock to github pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: ${{ github.repository_owner == 'berberman' && github.ref == 'refs/heads/master' }}
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
-        cname: nvfetcher.torus.icu
+      - name: Run Main_example.hs
+        run: nix develop .\#ghcWithNvfetcher --command runghc Main_example.hs
+
+      - name: Deploy generated haddock to github pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.repository_owner == 'berberman' && github.ref == 'refs/heads/master' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          cname: nvfetcher.torus.icu
