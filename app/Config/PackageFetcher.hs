@@ -51,6 +51,7 @@ data GitOptions = GitOptions
   { goDeepClone :: Maybe Bool,
     goFetchSubmodules :: Maybe Bool,
     goFetchLFS :: Maybe Bool,
+    goNonConeMode :: Maybe Bool,
     goLeaveDotGit :: Maybe Bool,
     goSparseCheckout :: Maybe [Text]
   }
@@ -62,6 +63,7 @@ gitOptionsDecoder =
     <$> getFieldsOpt ["git", "deepClone"]
     <*> getFieldsOpt ["git", "fetchSubmodules"]
     <*> getFieldsOpt ["git", "fetchLFS"]
+    <*> getFieldsOpt ["git", "nonConeMode"]
     <*> getFieldsOpt ["git", "leaveDotGit"]
     <*> getFieldsOpt ["git", "sparseCheckout"]
 
@@ -72,20 +74,22 @@ _GitOptions f x@FetchGit {..} =
         & deepClone .~ fromMaybe False goDeepClone
         & fetchSubmodules .~ fromMaybe False goFetchSubmodules
         & fetchLFS .~ fromMaybe False goFetchLFS
+        & nonConeMode .~ fromMaybe False goNonConeMode
         & leaveDotGit .~ fromMaybe False goLeaveDotGit
         & sparseCheckout .~ fromMaybe [] goSparseCheckout
   )
-    <$> f (GitOptions (Just _deepClone) (Just _fetchSubmodules) (Just _fetchLFS) (Just _leaveDotGit) (Just _sparseCheckout))
+    <$> f (GitOptions (Just _deepClone) (Just _fetchSubmodules) (Just _fetchLFS) (Just _nonConeMode) (Just _leaveDotGit) (Just _sparseCheckout))
 _GitOptions f x@FetchGitHub {..} =
   ( \GitOptions {..} ->
       x
         & deepClone .~ fromMaybe False goDeepClone
         & fetchSubmodules .~ fromMaybe False goFetchSubmodules
         & fetchLFS .~ fromMaybe False goFetchLFS
+        & nonConeMode .~ fromMaybe False goNonConeMode
         & leaveDotGit .~ fromMaybe False goLeaveDotGit
         & sparseCheckout .~ fromMaybe [] goSparseCheckout
   )
-    <$> f (GitOptions (Just _deepClone) (Just _fetchSubmodules) (Just _fetchLFS) (Just _leaveDotGit) (Just _sparseCheckout))
+    <$> f (GitOptions (Just _deepClone) (Just _fetchSubmodules) (Just _fetchLFS) (Just _nonConeMode) (Just _leaveDotGit) (Just _sparseCheckout))
 _GitOptions _ x = pure x
 
 --------------------------------------------------------------------------------
