@@ -98,7 +98,7 @@ runNixPrefetchUrl url unpack name = do
 newtype FetchedGit = FetchedGit {sha256 :: Text}
   deriving (Show, Generic, A.FromJSON)
 
-runNixPrefetchGit :: Text -> Text -> Bool -> Bool -> Bool -> [Text] -> Action Checksum
+runNixPrefetchGit :: Text -> Text -> Bool -> Bool -> Bool -> Bool -> [Text] -> Action Checksum
 runNixPrefetchGit url rev fetchSubmodules fetchLFS deepClone leaveDotGit sparseCheckout = do
   (CmdTime t, Stdout out, CmdLine c) <-
     quietly $
