@@ -414,6 +414,7 @@ data NixFetcher (k :: FetchStatus)
         _rev :: Version,
         _deepClone :: Bool,
         _fetchSubmodules :: Bool,
+        _fetchLFS :: Bool,
         _leaveDotGit :: Bool,
         _sparseCheckout :: [Text],
         _name :: Maybe Text,
@@ -425,6 +426,7 @@ data NixFetcher (k :: FetchStatus)
         _rev :: Version,
         _deepClone :: Bool,
         _fetchSubmodules :: Bool,
+        _fetchLFS :: Bool,
         _leaveDotGit :: Bool,
         _sparseCheckout :: [Text],
         _name :: Maybe Text,
@@ -539,6 +541,7 @@ instance Pretty (NixFetcher k) where
               "rev" <> colon <+> pretty _rev,
               "deepClone" <> colon <+> pretty _deepClone,
               "fetchSubmodules" <> colon <+> pretty _fetchSubmodules,
+              "fetchLFS" <> colon <+> pretty _fetchLFS,
               "leaveDotGit" <> colon <+> pretty _leaveDotGit,
               "sparseCheckout" <> colon <+> pretty _sparseCheckout
             ]
@@ -555,6 +558,7 @@ instance Pretty (NixFetcher k) where
               "rev" <> colon <+> pretty _rev,
               "deepClone" <> colon <+> pretty _deepClone,
               "fetchSubmodules" <> colon <+> pretty _fetchSubmodules,
+              "fetchLFS" <> colon <+> pretty _fetchLFS,
               "leaveDotGit" <> colon <+> pretty _leaveDotGit,
               "sparseCheckout" <> colon <+> pretty _sparseCheckout
             ]

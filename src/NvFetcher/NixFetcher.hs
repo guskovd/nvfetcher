@@ -99,13 +99,14 @@ newtype FetchedGit = FetchedGit {sha256 :: Text}
   deriving (Show, Generic, A.FromJSON)
 
 runNixPrefetchGit :: Text -> Text -> Bool -> Bool -> Bool -> [Text] -> Action Checksum
-runNixPrefetchGit url rev fetchSubmodules deepClone leaveDotGit sparseCheckout = do
+runNixPrefetchGit url rev fetchSubmodules fetchLFS deepClone leaveDotGit sparseCheckout = do
   (CmdTime t, Stdout out, CmdLine c) <-
     quietly $
       command [EchoStderr False] "nix-prefetch-git" $
         ["--url", T.unpack url]
           <> ["--rev", T.unpack rev]
           <> ["--fetch-submodules" | fetchSubmodules]
+          <> ["--fetch-lfs" | fetchLFS]
           <> ["--deepClone" | deepClone]
           <> ["--leave-dotGit" | leaveDotGit]
           <> if null sparseCheckout then [] else ["--sparse-checkout", T.unpack $ T.intercalate "\n" sparseCheckout]
@@ -119,14 +120,14 @@ runNixPrefetchGit url rev fetchSubmodules deepClone leaveDotGit sparseCheckout =
 runFetcher :: NixFetcher Fresh -> Action (NixFetcher Fetched)
 runFetcher = \case
   FetchGit {..} -> do
-    result <- runNixPrefetchGit _furl (coerce _rev) _fetchSubmodules _deepClone _leaveDotGit _sparseCheckout
+    result <- runNixPrefetchGit _furl (coerce _rev) _fetchSubmodules _fetchLFS _deepClone _leaveDotGit _sparseCheckout
     pure FetchGit {_sha256 = coerce result, ..}
   FetchGitHub {..} -> do
-    let useFetchGit = _fetchSubmodules || _leaveDotGit || _deepClone || not (null _sparseCheckout)
+    let useFetchGit = _fetchSubmodules || _fetchSubmodules || _leaveDotGit || _deepClone || not (null _sparseCheckout)
         ver = coerce _rev
     result <-
       if useFetchGit
-        then runNixPrefetchGit [trimming|https://github.com/$_fowner/$_frepo|] (coerce _rev) _fetchSubmodules _deepClone _leaveDotGit _sparseCheckout
+        then runNixPrefetchGit [trimming|https://github.com/$_fowner/$_frepo|] (coerce _rev) _fetchSubmodules _fetchLFS _deepClone _leaveDotGit _sparseCheckout
         else runNixPrefetchUrl [trimming|https://github.com/$_fowner/$_frepo/archive/$ver.tar.gz|] True mempty
     pure FetchGitHub {_sha256 = result, ..}
   FetchUrl {..} -> do
