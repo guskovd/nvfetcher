@@ -195,7 +195,7 @@ prefetch f force = askOracle $ RunFetch force f
 
 -- | Create a fetcher from git url
 gitFetcher :: Text -> PackageFetcher
-gitFetcher furl rev = FetchGit furl rev False True False [] Nothing ()
+gitFetcher furl rev = FetchGit furl rev False True False False [] Nothing ()
 
 -- | Create a fetcher from github repo
 gitHubFetcher ::
