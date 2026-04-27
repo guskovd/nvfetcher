@@ -23,7 +23,8 @@ import TOML
 fetcherDecoder :: Decoder PackageFetcher
 fetcherDecoder =
   asum
-    [ pypiDecoder,
+    [ gitHubDecoder,
+      pypiDecoder,
       openVsxDecoder,
       vscodeMarketplaceDecoder,
       gitDecoder,
