@@ -106,8 +106,6 @@ runNixPrefetchGit url rev fetchSubmodules fetchLFS nonConeMode deepClone leaveDo
         ["--url", T.unpack url]
           <> ["--rev", T.unpack rev]
           <> ["--fetch-submodules" | fetchSubmodules]
-          <> ["--fetch-lfs" | fetchLFS]
-          <> ["--non-cone-mode" | nonConeMode]
           <> ["--deepClone" | deepClone]
           <> ["--leave-dotGit" | leaveDotGit]
           <> if null sparseCheckout then [] else ["--sparse-checkout", T.unpack $ T.intercalate "\n" sparseCheckout]
@@ -196,7 +194,7 @@ prefetch f force = askOracle $ RunFetch force f
 
 -- | Create a fetcher from git url
 gitFetcher :: Text -> PackageFetcher
-gitFetcher furl rev = FetchGit furl rev False False False False False [] Nothing ()
+gitFetcher furl rev = FetchGit furl rev False False False True False [] Nothing ()
 
 -- | Create a fetcher from github repo
 gitHubFetcher ::
