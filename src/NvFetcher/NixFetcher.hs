@@ -106,6 +106,8 @@ runNixPrefetchGit url rev fetchSubmodules fetchLFS nonConeMode deepClone leaveDo
         ["--url", T.unpack url]
           <> ["--rev", T.unpack rev]
           <> ["--fetch-submodules" | fetchSubmodules]
+          <> ["--fetch-lfs" | fetchLFS]
+          <> ["--non-cone-mode" | nonConeMode]
           <> ["--deepClone" | deepClone]
           <> ["--leave-dotGit" | leaveDotGit]
           <> if null sparseCheckout then [] else ["--sparse-checkout", T.unpack $ T.intercalate "\n" sparseCheckout]
@@ -122,12 +124,7 @@ runFetcher = \case
     result <- runNixPrefetchGit _furl (coerce _rev) _fetchSubmodules _fetchLFS _nonConeMode _deepClone _leaveDotGit _sparseCheckout
     pure FetchGit {_sha256 = coerce result, ..}
   FetchGitHub {..} -> do
-    let useFetchGit = _fetchSubmodules || _fetchLFS || _nonConeMode || _leaveDotGit || _deepClone || not (null _sparseCheckout)
-        ver = coerce _rev
-    result <-
-      if useFetchGit
-        then runNixPrefetchGit [trimming|https://github.com/$_fowner/$_frepo|] (coerce _rev) _fetchSubmodules _fetchLFS _nonConeMode _deepClone _leaveDotGit _sparseCheckout
-        else runNixPrefetchUrl [trimming|https://github.com/$_fowner/$_frepo/archive/$ver.tar.gz|] True mempty
+    result <-  runNixPrefetchGit [trimming|https://github.com/$_fowner/$_frepo|] (coerce _rev) _fetchSubmodules _fetchLFS _nonConeMode _deepClone _leaveDotGit _sparseCheckout
     pure FetchGitHub {_sha256 = result, ..}
   FetchUrl {..} -> do
     result <- runNixPrefetchUrl _furl False _name
