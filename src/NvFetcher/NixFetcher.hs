@@ -203,7 +203,7 @@ gitHubFetcher ::
   -- | owner and repo
   (Text, Text) ->
   PackageFetcher
-gitHubFetcher (owner, repo) rev = FetchGitHub owner repo rev False False False False False [] Nothing ()
+gitHubFetcher (owner, repo) rev = FetchGitHub owner repo rev False False False True False [] Nothing ()
 
 -- | Create a fetcher from pypi
 pypiFetcher :: Text -> PackageFetcher
