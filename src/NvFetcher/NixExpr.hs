@@ -90,8 +90,6 @@ nixFetcher = \case
     { _sha256 = coerce quote -> sha256,
       _rev = quote . toNixExpr -> rev,
       _fetchSubmodules = toNixExpr -> fetchSubmodules,
-      _fetchLFS = toNixExpr -> fetchLFS,
-      _nonConeMode = toNixExpr -> nonConeMode,
       _deepClone = toNixExpr -> deepClone,
       _leaveDotGit = toNixExpr -> leaveDotGit,
       _sparseCheckout = toNixExpr . map quote -> sparseCheckout,
@@ -109,8 +107,6 @@ nixFetcher = \case
                  repo = $repo;
                  rev = $rev;
                  fetchSubmodules = $fetchSubmodules;
-                 fetchLFS = $fetchLFS;$n
-                 nonConeMode = $nonConeMode;$n
                  deepClone = $deepClone;
                  leaveDotGit = $leaveDotGit;
                  sparseCheckout = $sparseCheckout;$n
@@ -124,8 +120,6 @@ nixFetcher = \case
                  repo = $repo;
                  rev = $rev;
                  fetchSubmodules = $fetchSubmodules;$n
-                 fetchLFS = $fetchLFS;$n
-                 nonConeMode = $nonConeMode;$n
                  sha256 = $sha256;
                }
          |]
