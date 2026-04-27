@@ -124,7 +124,8 @@ runFetcher = \case
     result <- runNixPrefetchGit _furl (coerce _rev) _fetchSubmodules _fetchLFS _nonConeMode _deepClone _leaveDotGit _sparseCheckout
     pure FetchGit {_sha256 = coerce result, ..}
   FetchGitHub {..} -> do
-    result <-  runNixPrefetchGit [trimming|https://github.com/$_fowner/$_frepo|] (coerce _rev) _fetchSubmodules _fetchLFS _nonConeMode _deepClone _leaveDotGit _sparseCheckout
+    let ver = coerce _rev
+    result <- runNixPrefetchUrl [trimming|https://github.com/$_fowner/$_frepo/archive/$ver.tar.gz|] True mempty
     pure FetchGitHub {_sha256 = result, ..}
   FetchUrl {..} -> do
     result <- runNixPrefetchUrl _furl False _name
