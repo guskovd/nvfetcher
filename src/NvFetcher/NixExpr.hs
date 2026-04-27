@@ -124,8 +124,8 @@ nixFetcher = \case
                  repo = $repo;
                  rev = $rev;
                  fetchSubmodules = $fetchSubmodules;$n
-                 fetchLFS = $fetchLFS;$n
-                 nonConeMode = $nonConeMode;$n
+                 fetchLFS = $fetchLFS;
+                 nonConeMode = $nonConeMode;
                  sha256 = $sha256;
                }
          |]
