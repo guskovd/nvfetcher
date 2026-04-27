@@ -196,14 +196,14 @@ prefetch f force = askOracle $ RunFetch force f
 
 -- | Create a fetcher from git url
 gitFetcher :: Text -> PackageFetcher
-gitFetcher furl rev = FetchGit furl rev False True True True False [] Nothing ()
+gitFetcher furl rev = FetchGit furl rev False True False False False [] Nothing ()
 
 -- | Create a fetcher from github repo
 gitHubFetcher ::
   -- | owner and repo
   (Text, Text) ->
   PackageFetcher
-gitHubFetcher (owner, repo) rev = FetchGitHub owner repo rev False False False False False [] Nothing ()
+gitHubFetcher (owner, repo) rev = FetchGitHub owner repo rev False True False False False [] Nothing ()
 
 -- | Create a fetcher from pypi
 pypiFetcher :: Text -> PackageFetcher
