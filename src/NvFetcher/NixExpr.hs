@@ -109,8 +109,8 @@ nixFetcher = \case
                  repo = $repo;
                  rev = $rev;
                  fetchSubmodules = $fetchSubmodules;
-                 fetchLFS = $fetchLFS;
-                 nonConeMode = $nonConeMode;
+                 fetchLFS = $fetchLFS;$n
+                 nonConeMode = $nonConeMode;$n
                  deepClone = $deepClone;
                  leaveDotGit = $leaveDotGit;
                  sparseCheckout = $sparseCheckout;$n
@@ -124,8 +124,8 @@ nixFetcher = \case
                  repo = $repo;
                  rev = $rev;
                  fetchSubmodules = $fetchSubmodules;$n
-                 fetchLFS = $fetchLFS;
-                 nonConeMode = $nonConeMode;
+                 fetchLFS = $fetchLFS;$n
+                 nonConeMode = $nonConeMode;$n
                  sha256 = $sha256;
                }
          |]
