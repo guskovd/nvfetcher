@@ -116,6 +116,25 @@ runNixPrefetchGit url rev fetchSubmodules fetchLFS nonConeMode deepClone leaveDo
     Right (FetchedGit x) -> sha256ToSri x
     Left e -> fail $ "Failed to parse output from nix-prefetch-git as JSON: " <> e
 
+runNixPrefetchGitHub :: Text -> Text -> Bool -> Bool -> Bool -> [Text] -> Action Checksum
+runNixPrefetchGitHub url rev fetchSubmodules deepClone leaveDotGit sparseCheckout = do
+  (CmdTime t, Stdout out, CmdLine c) <-
+    quietly $
+      command [EchoStderr False] "nix-prefetch-git" $
+        ["--url", T.unpack url]
+          <> ["--rev", T.unpack rev]
+          <> ["--fetch-submodules" | fetchSubmodules]
+          <> ["--fetch-lfs" | fetchLFS]
+          <> ["--non-cone-mode" | nonConeMode]
+          <> ["--deepClone" | deepClone]
+          <> ["--leave-dotGit" | leaveDotGit]
+          <> if null sparseCheckout then [] else ["--sparse-checkout", T.unpack $ T.intercalate "\n" sparseCheckout]
+  putVerbose $ "Finishing running " <> c <> ", took " <> show t <> "s"
+  case A.eitherDecode out of
+    Right (FetchedGit x) -> sha256ToSri x
+    Left e -> fail $ "Failed to parse output from nix-prefetch-git as JSON: " <> e
+
+
 --------------------------------------------------------------------------------
 
 runFetcher :: NixFetcher Fresh -> Action (NixFetcher Fetched)
@@ -124,8 +143,12 @@ runFetcher = \case
     result <- runNixPrefetchGit _furl (coerce _rev) _fetchSubmodules _fetchLFS _nonConeMode _deepClone _leaveDotGit _sparseCheckout
     pure FetchGit {_sha256 = coerce result, ..}
   FetchGitHub {..} -> do
-    let ver = coerce _rev
-    result <- runNixPrefetchUrl [trimming|https://github.com/$_fowner/$_frepo/archive/$ver.tar.gz|] True mempty
+    let useFetchGit = _fetchSubmodules || _leaveDotGit || _deepClone || not (null _sparseCheckout)
+        ver = coerce _rev
+    result <-
+      if useFetchGit
+        then runNixPrefetchGit [trimming|https://github.com/$_fowner/$_frepo|] (coerce _rev) _fetchSubmodules _deepClone _leaveDotGit _sparseCheckout
+        else runNixPrefetchUrl [trimming|https://github.com/$_fowner/$_frepo/archive/$ver.tar.gz|] True mempty
     pure FetchGitHub {_sha256 = result, ..}
   FetchUrl {..} -> do
     result <- runNixPrefetchUrl _furl False _name
@@ -192,14 +215,14 @@ prefetch f force = askOracle $ RunFetch force f
 
 -- | Create a fetcher from git url
 gitFetcher :: Text -> PackageFetcher
-gitFetcher furl rev = FetchGit furl rev False False False True False [] Nothing ()
+gitFetcher furl rev = FetchGit furl rev False True False False False [] Nothing ()
 
 -- | Create a fetcher from github repo
 gitHubFetcher ::
   -- | owner and repo
   (Text, Text) ->
   PackageFetcher
-gitHubFetcher (owner, repo) rev = FetchGitHub owner repo rev False False False False False [] Nothing ()
+gitHubFetcher (owner, repo) rev = FetchGitHub owner repo rev False False False [] Nothing ()
 
 -- | Create a fetcher from pypi
 pypiFetcher :: Text -> PackageFetcher
