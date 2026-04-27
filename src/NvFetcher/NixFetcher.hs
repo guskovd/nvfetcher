@@ -124,7 +124,7 @@ runFetcher = \case
     result <- runNixPrefetchGit _furl (coerce _rev) _fetchSubmodules _fetchLFS _nonConeMode _deepClone _leaveDotGit _sparseCheckout
     pure FetchGit {_sha256 = coerce result, ..}
   FetchGitHub {..} -> do
-    let useFetchGit = _fetchSubmodules || _fetchLFS || _nonConeMode || _leaveDotGit || _deepClone || not (null _sparseCheckout)
+    let useFetchGit = _fetchSubmodules || _leaveDotGit || _deepClone || not (null _sparseCheckout)
         ver = coerce _rev
     result <-
       if useFetchGit
